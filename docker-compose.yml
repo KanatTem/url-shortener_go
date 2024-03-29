@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: url-shortener
+    environment:
+      CONFIG_PATH: "/app/config/local.yaml"
+      MIGRATIONS_PATH: "/app/migrations"
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./migrations:/app/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ./url-shortener
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: url_shortener_db
+    environment:
+      POSTGRES_USER: "shortener"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "shortener"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortener -d shortener -t 1"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

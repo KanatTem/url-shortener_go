@@ -1,0 +1,13 @@
+env: "local"
+postgres:
+  host: "localhost"
+  port: 5432
+  user: "shortener"
+  password: "1234"
+  dbname: "shortener"
+  sslmode: "disable"
+http_server:
+  address: "localhost:8082"
+  timeout: 4s
+  idle_timeout: 30s
+migrations_path: "/app/migrations"
