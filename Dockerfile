@@ -8,7 +8,6 @@ FROM alpine:3.18
 WORKDIR /app
 COPY --from=builder /url-shortener .
 COPY config/local.yaml ./config/
-COPY migrations ./migrations/
 
 EXPOSE 8082
 CMD ["./url-shortener"]

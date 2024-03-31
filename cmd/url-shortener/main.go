@@ -20,13 +20,11 @@ func main() {
 		cfg.Postgres.SSLMode,
 	)
 
-	storage, err := postgres.New(connStr)
+	fmt.Println(connStr)
+
+	_, err := postgres.New(connStr)
 	if err != nil {
 		log.Fatalf("Failed to initialize storage: %v", err)
-	}
-
-	if err := storage.Migrate(cfg.MigrationsPath); err != nil {
-		log.Fatalf("Failed to apply migrations: %v", err)
 	}
 
 }
