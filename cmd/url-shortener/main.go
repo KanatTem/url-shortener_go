@@ -2,13 +2,17 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	mwLogger "url-shortener/cmd/url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/config"
+	logger "url-shortener/internal/lib/logger"
 	"url-shortener/internal/storage/postgres"
 )
 
 func main() {
 	cfg := config.MustLoad()
+	log := logger.SetupLogger(cfg.Env)
 
 	connStr := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
@@ -20,11 +24,16 @@ func main() {
 		cfg.Postgres.SSLMode,
 	)
 
-	fmt.Println(connStr)
-
 	_, err := postgres.New(connStr)
 	if err != nil {
-		log.Fatalf("Failed to initialize storage: %v", err)
+		log.Error("Failed to initialize storage: %v", err)
 	}
+
+	router := chi.NewRouter()
+
+	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга
+	router.Use(mwLogger.New(log))    // Логирование всех запросов
+	router.Use(middleware.Recoverer) // Если где-то внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
+	router.Use(middleware.URLFormat) // Парсер URLов поступающих запросов
 
 }
